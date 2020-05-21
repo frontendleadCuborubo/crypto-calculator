@@ -51,7 +51,7 @@ export default {
 	props: {
 		convertData: Object,
 		fiatSymbol: String,
-		coins: Array,
+		coins: Array
 	},
 	data: () => {
 		return {
@@ -59,9 +59,9 @@ export default {
 			coinValue: '',
 			activeCoin: {
 				symbol: '',
-				icon: '',
+				icon: ''
 			},
-			activeCoinPrice: 0,
+			activeCoinPrice: 0
 		};
 	},
 	methods: {
@@ -83,18 +83,21 @@ export default {
 			this.coinValue = value;
 		},
 		getIsActive(coin) {
-			return this.activeCoin.symbol === coin.symbol;
-		},
+			return (
+				this.activeCoin.symbol.toLowerCase() ===
+				coin.symbol.toLowerCase()
+			);
+		}
 	},
 	computed: {
 		getActiveCoinSymbol() {
 			return this.activeCoin.symbol;
-		},
+		}
 	},
 	watch: {
 		convertData({ coinSymbol, fiatRateData }) {
 			const flatRate = fiatRateData[this.fiatSymbol];
-			const coin = this.coins.find((coin) => coin.symbol === coinSymbol);
+			const coin = this.coins.find(coin => coin.symbol === coinSymbol);
 			this.activeCoin = coin;
 
 			if (!this.coinValue) {
@@ -103,8 +106,8 @@ export default {
 
 			this.activeCoinPrice = flatRate;
 			this.setFiatValue(this.coinValue * flatRate);
-		},
-	},
+		}
+	}
 };
 </script>
 
