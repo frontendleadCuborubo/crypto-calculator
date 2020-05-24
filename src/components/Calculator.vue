@@ -15,29 +15,29 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="fiat">{{ fiatSymbol }}</label>
+			<label for="convert-to">{{ convertToSymbol }}</label>
 			<input
-				id="fiat"
+				id="convert-to"
 				class="form-control"
-				v-model.number="fiatValue"
-				@input="onFiatInput($event)"
+				v-model.number="convertToValue"
+				@input="onConvertToInput($event)"
 				type="number"
 				min="0"
 				step="1"
-				name="fiat"
+				name="convert-to"
 			/>
 		</div>
 		<div class="form-group">
-			<label for="coin">{{ getActiveCoinSymbol }}</label>
+			<label for="convert-from">{{ getConvertFromSymbol }}</label>
 			<input
-				id="coin"
+				id="convert-from"
 				class="form-control"
-				v-model.number="coinValue"
-				@input="onCoinInput($event)"
+				v-model.number="convertFromValue"
+				@input="onConvertFromInput($event)"
 				type="number"
 				min="0"
 				step="0.1"
-				name="coin"
+				name="convert-from"
 			/>
 		</div>
 	</div>
@@ -49,14 +49,23 @@ import roundTo from 'round-to';
 export default {
 	name: 'Calculator',
 	props: {
-		convertData: Object,
-		fiatSymbol: String,
-		coins: Array
+		convertData: {
+			type: Object,
+			required: true
+		},
+		convertToSymbol: {
+			type: String,
+			required: true
+		},
+		coins: {
+			type: Array,
+			required: true
+		}
 	},
 	data: () => {
 		return {
-			fiatValue: '',
-			coinValue: '',
+			convertToValue: '',
+			convertFromValue: '',
 			activeCoin: {
 				symbol: '',
 				icon: ''
@@ -68,44 +77,45 @@ export default {
 		onCoinClick(coin) {
 			this.$emit('load_coin_rate', coin.symbol);
 		},
-		onFiatInput(event) {
+		onConvertToInput(event) {
 			const value = event.target.value;
-			this.setCoinValue(value / this.activeCoinPrice);
+			this.setConvertFromValue(value / this.activeCoinPrice);
 		},
-		onCoinInput(event) {
+		onConvertFromInput(event) {
 			const value = event.target.value;
-			this.setFiatValue(this.activeCoinPrice * value);
+			this.setConvertToValue(this.activeCoinPrice * value);
 		},
-		setFiatValue(value) {
-			this.fiatValue = roundTo(value, 2);
+		setConvertToValue(value) {
+			this.convertToValue = roundTo(value, 2);
 		},
-		setCoinValue(value) {
-			this.coinValue = value;
+		setConvertFromValue(value) {
+			this.convertFromValue = value;
+		},
+		getConvertFromValue() {
+			return this.convertFromValue;
 		},
 		getIsActive(coin) {
-			return (
-				this.activeCoin.symbol.toLowerCase() ===
-				coin.symbol.toLowerCase()
-			);
+			return this.activeCoin.symbol === coin.symbol;
 		}
 	},
 	computed: {
-		getActiveCoinSymbol() {
+		getConvertFromSymbol() {
 			return this.activeCoin.symbol;
 		}
 	},
 	watch: {
-		convertData({ coinSymbol, fiatRateData }) {
-			const flatRate = fiatRateData[this.fiatSymbol];
-			const coin = this.coins.find(coin => coin.symbol === coinSymbol);
-			this.activeCoin = coin;
+		convertData({ fromSymbol, rate }) {
+			const coin = this.coins.find(
+				coin => coin.symbol.toLowerCase() === fromSymbol.toLowerCase()
+			);
+			this.activeCoin = { ...coin };
 
-			if (!this.coinValue) {
-				this.setCoinValue(1);
+			if (!this.getConvertFromValue()) {
+				this.setConvertFromValue(1);
 			}
 
-			this.activeCoinPrice = flatRate;
-			this.setFiatValue(this.coinValue * flatRate);
+			this.activeCoinPrice = rate;
+			this.setConvertToValue(this.getConvertFromValue() * rate);
 		}
 	}
 };

@@ -10,7 +10,7 @@
 			</div>
 			<Calculator
 				:convert-data="convertData"
-				:fiat-symbol="fiatSymbol"
+				:convert-to-symbol="convertToSymbol"
 				:coins="coins"
 				@load_coin_rate="onLoadCoinRate($event)"
 			/>
@@ -31,8 +31,8 @@ export default {
 		return {
 			isLoading: false,
 			error: '',
-			convertData: null,
-			fiatSymbol: 'USD',
+			convertData: {},
+			convertToSymbol: 'USD',
 			coins: [
 				{
 					symbol: 'BTC',
@@ -54,27 +54,33 @@ export default {
 		};
 	},
 	mounted() {
-		this.doConvertPrice('BTC', this.fiatSymbol);
+		this.doConvertPrice('BTC', this.convertToSymbol);
 	},
 	methods: {
-		onLoadCoinRate(symbol) {
-			this.doConvertPrice(symbol, this.fiatSymbol);
+		onLoadCoinRate(fromSymbol) {
+			this.doConvertPrice(fromSymbol.toUpperCase(), this.convertToSymbol);
 		},
-		doConvertPrice(from, to) {
+		doConvertPrice(fromSymbol, toSymbol) {
 			this.isLoading = true;
-			CryptoCompareApi.convertPriceMulti(from, to)
-				.then(resp => this.parseConvertData(resp, from))
+			this.error = '';
+			CryptoCompareApi.convertPriceMulti(fromSymbol, toSymbol)
+				.then(resp => this.parseConvertData(resp, fromSymbol))
 				.catch(e => (this.error = e))
-				.finally(() => {
-					setTimeout(() => (this.isLoading = false), 350);
-				});
+				.finally(() => setTimeout(() => (this.isLoading = false), 350));
 		},
-		parseConvertData(resp, symbol) {
-			const { data } = resp;
+		parseConvertData({ data }, fromSymbol) {
+			const { Message } = data;
+			/**
+			 * This is how Cryptocomare API handle error response
+			 */
+			if (Message) {
+				this.error = Message;
+				return;
+			}
 
 			this.convertData = {
-				coinSymbol: symbol,
-				fiatRateData: data[symbol]
+				fromSymbol,
+				rate: data[fromSymbol][this.convertToSymbol]
 			};
 		}
 	}
