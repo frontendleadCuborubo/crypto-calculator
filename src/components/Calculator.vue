@@ -70,7 +70,7 @@ export default {
 				symbol: '',
 				icon: ''
 			},
-			activeCoinRate: 0
+			activeCoinPrice: 0
 		};
 	},
 	methods: {
@@ -79,11 +79,11 @@ export default {
 		},
 		onConvertToInput(event) {
 			const value = event.target.value;
-			this.setConvertFromValue(value / this.activeCoinRate);
+			this.setConvertFromValue(value / this.activeCoinPrice);
 		},
 		onConvertFromInput(event) {
 			const value = event.target.value;
-			this.setConvertToValue(this.activeCoinRate * value);
+			this.setConvertToValue(this.activeCoinPrice * value);
 		},
 		setConvertToValue(value) {
 			this.convertToValue = roundTo(value, 2);
@@ -104,7 +104,7 @@ export default {
 		}
 	},
 	watch: {
-		convertData({ fromSymbol, rate }) {
+		convertData({ fromSymbol, price }) {
 			this.activeCoin = {
 				...this.coins.find(
 					coin =>
@@ -116,8 +116,8 @@ export default {
 				this.setConvertFromValue(1);
 			}
 
-			this.activeCoinRate = rate;
-			this.setConvertToValue(this.getConvertFromValue() * rate);
+			this.activeCoinPrice = price;
+			this.setConvertToValue(this.getConvertFromValue() * price);
 		}
 	}
 };

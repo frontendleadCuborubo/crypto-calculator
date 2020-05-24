@@ -80,7 +80,7 @@ export default {
 
 			this.convertData = {
 				fromSymbol,
-				rate: data[fromSymbol][this.convertToSymbol]
+				price: data[fromSymbol][this.convertToSymbol]
 			};
 		}
 	}
