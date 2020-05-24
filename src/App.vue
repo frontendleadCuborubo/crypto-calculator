@@ -58,7 +58,7 @@ export default {
 	},
 	methods: {
 		onLoadCoinRate(fromSymbol) {
-			this.doConvertPrice(fromSymbol.toUpperCase(), this.convertToSymbol);
+			this.doConvertPrice(fromSymbol, this.convertToSymbol);
 		},
 		doConvertPrice(fromSymbol, toSymbol) {
 			this.isLoading = true;
